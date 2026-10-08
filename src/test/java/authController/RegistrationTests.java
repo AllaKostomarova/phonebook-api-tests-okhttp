@@ -33,7 +33,7 @@ public class RegistrationTests {
     - specifies the type of the request body data;
     - tells OkHttp that the request body contains JSON data.
      */
-    private static final MediaType JSON = MediaType.get("application/json;charset=utf-8");
+    private static final MediaType JSON = MediaType.get(ApiConstants.APPLICATION_JSON);
 
     private static final String REG_URL = ApiConstants.BASEURL + ApiConstants.REGISTR_ENDPOINT;
 
@@ -55,7 +55,7 @@ public class RegistrationTests {
 
         //Create the Java object for the request body
         AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder()
-                .password(i + ApiConstants.TEST_PASSWORD)
+                .password(i + ApiConstants.TEST_PART_PASSWORD)
                 .username(i + "new.testuser@register.com")
                 .build();
         //System.out.println(i+"new.testuser@regisrer.com");
@@ -157,7 +157,7 @@ public class RegistrationTests {
         // Create a request body as a Java object
         AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder()
                 .username(i + "existing@password.com")
-                .password(ApiConstants.PASSWORD)
+                .password(ApiConstants.REGISTERED_PASSWORD)
                 .build();
         // Create a RequestBody with JSON using RequestBody.create() and GSON
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
@@ -206,7 +206,7 @@ public class RegistrationTests {
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
         AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder()
                 .username(i + "invalid.email")
-                .password(i + ApiConstants.TEST_PASSWORD)
+                .password(i + ApiConstants.TEST_PART_PASSWORD)
                 .build();
         // For debugging
         // String requestJson = GSON.toJson(reqBodyDTO);
@@ -233,7 +233,7 @@ public class RegistrationTests {
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO =
                     GSON.fromJson(stringResBody, type);
             // #2 Check that the "error" field equals "Bad Request"
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_400,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #3 Check that the "password" field is null
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
@@ -244,8 +244,8 @@ public class RegistrationTests {
             Assert.assertNull(password, "The '" + ApiConstants.PASSWORD_FIELD_NAME + "' field should be null.");
             // #4 Check that the "username" field equals the expected error message.
             String username = messageFieldDTO.getUsername();
-            Assert.assertTrue(ApiConstants.USERNAME_ERROR_RU.equals(username)
-                            || ApiConstants.USERNAME_ERROR_EN.equals(username),
+            Assert.assertTrue(ApiConstants.USERNAME_ERROR_TEXT_RU.equals(username)
+                            || ApiConstants.USERNAME_ERROR_TEXT_EN.equals(username),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
             // #5 Check that the response body matches the ErrorMessageDto schema
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
@@ -271,7 +271,7 @@ public class RegistrationTests {
     @Test
     public void shouldReturnBadRequestWhenRegisteringWithInvalidPassword() throws IOException {
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
-        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(ApiConstants.TEST_PASSWORD)
+        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(ApiConstants.TEST_PART_PASSWORD)
                 .username(i + "invalid@password.com").build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
@@ -287,14 +287,14 @@ public class RegistrationTests {
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             //System.out.println(errorMessageDTO.toString());
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_400,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #3
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR,
+            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
             // #4
             Assert.assertNull(messageFieldDTO.getUsername(),
@@ -325,7 +325,7 @@ public class RegistrationTests {
     public void shouldReturnBadRequestWhenRegisteringWithInvalidPasswordAndUsername() throws IOException {
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
         AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().username(i + "invalid@@alldata.ru")
-                .password(ApiConstants.TEST_PASSWORD).build();
+                .password(ApiConstants.TEST_PART_PASSWORD).build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -339,19 +339,19 @@ public class RegistrationTests {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_400,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #3
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR,
+            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
             // #4
             String usernameField = messageFieldDTO.getUsername();
-            Assert.assertTrue(usernameField.equals(ApiConstants.USERNAME_ERROR_RU)
-                            || usernameField.equals(ApiConstants.USERNAME_ERROR_EN),
+            Assert.assertTrue(usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_RU)
+                            || usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_EN),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
             // #5
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
@@ -376,7 +376,7 @@ public class RegistrationTests {
     @Test
     public void shouldReturnBadRequestWhenRegisteringWithBlankUsername() throws IOException {
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
-        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(i + ApiConstants.TEST_PASSWORD)
+        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(i + ApiConstants.TEST_PART_PASSWORD)
                 .username("").build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
@@ -390,7 +390,7 @@ public class RegistrationTests {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_400,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
@@ -401,8 +401,8 @@ public class RegistrationTests {
                     "The '" + ApiConstants.PASSWORD_FIELD_NAME + "' field should be null.");
             // #4
             String usernameField = messageFieldDTO.getUsername();
-            Assert.assertTrue(ApiConstants.ERROR_BLANK_RU.equals(usernameField)
-                            || ApiConstants.ERROR_BLANK_EN.equals(usernameField),
+            Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(usernameField)
+                            || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(usernameField),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
             // #5
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
@@ -441,7 +441,7 @@ public class RegistrationTests {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_400,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
@@ -452,12 +452,63 @@ public class RegistrationTests {
                     "The '" + ApiConstants.USERNAME_FIELD_NAME + "' field should be null.");
             // #4
             String passwordField = messageFieldDTO.getPassword();
-            Assert.assertTrue(ApiConstants.ERROR_BLANK_RU.equals(passwordField)
-                            || ApiConstants.ERROR_BLANK_EN.equals(passwordField),
+            Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(passwordField)
+                            || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(passwordField),
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
             // #5
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
 
+        }
+    }
+    /**
+     * The negative test "shouldReturnBadRequestWhenRegisteringWithBlankEmailAndPassword" checks that the Phonebook API
+     * returns the error "Bad Request" when registering a new user with an empty or blank email and an empty or blank password.
+     * Expected results:
+     * - Status code: 400. (#1)
+     * - The "error" field equals "Bad Request". (#2)
+     * - The "username" field in the "message" object equals the expected error message (#3)
+     * - The "password" field in the "message" object equals the expected error message (#4)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * <p>
+     * Note:
+     * The exact validation message is not defined by the API contract.
+     * The current API response is used as the expected value to detect
+     * unexpected changes in API behavior.
+     */
+    @Test
+    public void shouldReturnBadRequestWhenRegisteringWithBlankEmailAndPassword() throws IOException {
+        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password("").username("").build();
+        RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
+        Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
+        try (Response response = CLIENT.newCall(request).execute()){
+            // #1
+            Assert.assertEquals(response.code(), 400, "Unexpected status code.");
+            ResponseBody responseBody = response.body();
+            Assert.assertNotNull(responseBody, "The response body should not be null.");
+
+            String stringResBody = responseBody.string();
+            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>(){}.getType();
+            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+
+            // #2
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
+                    "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
+
+            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            Assert.assertNotNull(messageFieldDTO, "The message object should not be null");
+
+            // #3
+            String usernameField = messageFieldDTO.getUsername();
+            Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(usernameField)
+                            || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(usernameField),
+                    "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
+            // #4
+            String passwordField = messageFieldDTO.getPassword();
+            Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(passwordField)
+                    || ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(passwordField),
+                    "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
+            // #5
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
         }
     }
 
@@ -479,8 +530,8 @@ public class RegistrationTests {
     @Test
     public void shouldReturnConflictWhenRegisteringWithExistingEmail() throws IOException {
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
-        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(i + ApiConstants.TEST_PASSWORD)
-                .username(ApiConstants.LOGIN).build();
+        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(i + ApiConstants.TEST_PART_PASSWORD)
+                .username(ApiConstants.REGISTERED_LOGIN).build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -493,11 +544,11 @@ public class RegistrationTests {
             }.getType();
             ErrorMessageDTO<String> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_409,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_409,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             String messageField = errorMessageDTO.getMessage();
             // #3
-            Assert.assertTrue(ApiConstants.ERROR_CONFLICT_MESSAGE.equals(messageField),
+            Assert.assertTrue(ApiConstants.CONFLICT_ERROR_TEXT.equals(messageField),
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
             // #4
             SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
@@ -522,8 +573,8 @@ public class RegistrationTests {
      */
     @Test
     public void shouldReturnConflictWhenRegisteringWithExistingEmailAndPassword() throws IOException {
-        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(ApiConstants.PASSWORD)
-                .username(ApiConstants.LOGIN).build();
+        AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password(ApiConstants.REGISTERED_PASSWORD)
+                .username(ApiConstants.REGISTERED_LOGIN).build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -536,11 +587,11 @@ public class RegistrationTests {
             }.getType();
             ErrorMessageDTO<String> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #2
-            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_MESSAGE_409,
+            Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_409,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             String messageField = errorMessageDTO.getMessage();
             // #3
-            Assert.assertTrue(ApiConstants.ERROR_CONFLICT_MESSAGE.equals(messageField),
+            Assert.assertTrue(ApiConstants.CONFLICT_ERROR_TEXT.equals(messageField),
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
             // #4
             SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
