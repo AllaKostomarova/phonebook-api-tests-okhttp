@@ -25,9 +25,8 @@ public class LoginTests {
      * <p>
      * Expected results:
      * - Status code: 200 (#1)
-     * - The response body matches the token response schema (#2)
-     * - The token is not null (#3)
-     * - The token is not blank (#4)
+     * - The response body matches the token response schema (#2)     *
+     * - The token is not blank (#3)
      */
     @Test
     public void shouldReturnTokenWhenLoginWithValidData() throws IOException {
@@ -46,15 +45,11 @@ public class LoginTests {
             SchemaValidator.checkTokenDtoSchema(stringResBody);
 
             AuthResponseDTO responseDTO = GSON.fromJson(stringResBody, AuthResponseDTO.class);
-            Assert.assertNotNull(responseDTO, "The AuthResponseDTO object should not be null.");
+            //Assert.assertNotNull(responseDTO, "The AuthResponseDTO object should not be null.");
             String token = responseDTO.getToken();
 
             // #3
-            Assert.assertNotNull(token,
-                    "The '" + ApiConstants.TOKEN_FIELD_NAME + "' field should not be null.");
-            // #4
             Assert.assertFalse(token.isBlank(), "The token should not be blank.");
-
         }
     }
 

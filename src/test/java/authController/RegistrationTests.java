@@ -43,9 +43,8 @@ public class RegistrationTests {
      * returns a token when registering a new user with a valid unique email and a valid password.
      * Expected results:
      * - Status code: 200. (#1)
-     * - Token is not null. (#2)
+     * - Response body matches the TokenDto schema. (#2)
      * - Token is not blank. (#3)
-     * - Response body matches the TokenDto schema. (#4)
      */
     @Test
     public void shouldReturnTokenWhenRegisteringNewUserWithValidData() throws IOException {
@@ -108,7 +107,14 @@ public class RegistrationTests {
          */
             Assert.assertEquals(response.code(), 200, "Unexpected status code.");
 
-        /*
+            ResponseBody responseBody = response.body();
+            Assert.assertNotNull(responseBody, "The response body should not be null.");
+            String stringResBody = responseBody.string();
+
+            // #2 Check the TokenDto schema
+            SchemaValidator.checkTokenDtoSchema(stringResBody);
+
+           /*
         Convert the response body from JSON to an AuthResponseDTO Java object.
         - .body() gets the response body as the ResponseBody object;
         - the ResponseBody object must be converted to the type String;
@@ -116,27 +122,13 @@ public class RegistrationTests {
         - GSON.fromJson() converts the JSON string to an AuthResponseDTO object;
         - AuthResponseDTO.class specifies the type of the Java object to create
          */
-            ResponseBody responseBody = response.body();
-            Assert.assertNotNull(responseBody, "The response body should not be null.");
-            String stringResBody = responseBody.string();
             AuthResponseDTO resBodyDTO = GSON.fromJson(stringResBody, AuthResponseDTO.class);
-
             // Get the token
             String token = resBodyDTO.getToken();
             //System.out.println(token);
-            /*
-            These checks partially duplicate the schema validation intentionally:
-            - the schema validation checks the response structure,
-            - while these assertions verify the token value as part of the functional test.
-             */
-            // #2 Check that the "token" field is not null
-            Assert.assertNotNull(token, "The '" + ApiConstants.TOKEN_FIELD_NAME + "' field should not be null.");
 
             // #3 Check that the "token" field is not blank
             Assert.assertFalse(token.isBlank(), "Value for the token is missing.");
-
-            // #4 Check the TokenDto schema
-            SchemaValidator.checkTokenDtoSchema(stringResBody);
         }
     }
 
@@ -145,9 +137,8 @@ public class RegistrationTests {
      * returns a token when registering a new user with a valid unique email and an existing password.
      * Expected results:
      * - Status code: 200. (#1)
-     * - Token is not null. (#2)
+     * - Response body matches the TokenDto schema. (#2)
      * - Token is not blank. (#3)
-     * - Response body matches the TokenDto schema. (#4)
      */
 
     @Test
@@ -171,18 +162,18 @@ public class RegistrationTests {
         try (Response response = CLIENT.newCall(request).execute()) {
             // #1 Check the status code 200
             Assert.assertEquals(response.code(), 200, "Unexpected status code.");
-            // Convert the response body from JSON to a Java object
+
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+
+            // #2 Check the TokenDto schema
+            SchemaValidator.checkTokenDtoSchema(stringResBody);
+
+            // Convert the response body from JSON to a Java object
             AuthResponseDTO responseDTO = GSON.fromJson(stringResBody, AuthResponseDTO.class);
-            // #2 Check that the token field in Java object is not null
-            Assert.assertNotNull(responseDTO.getToken(),
-                    "The '" + ApiConstants.TOKEN_FIELD_NAME + "' field should not be null.");
             // #3 Check that the token is not blank
             Assert.assertFalse(responseDTO.getToken().isBlank(), "Value for the token is missing.");
-            // #4 Check the TokenDto schema
-            SchemaValidator.checkTokenDtoSchema(stringResBody);
         }
     }
 
@@ -191,10 +182,10 @@ public class RegistrationTests {
      * returns the error "Bad Request" when registering a new user with an invalid email and a valid password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "password" field in the "message" object is null. (#3)
-     * - The "username" field in the "message" object equals the expected error message (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "password" field in the "message" object is null. (#4)
+     * - The "username" field in the "message" object equals the expected error message (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -222,6 +213,9 @@ public class RegistrationTests {
             // For debugging
             // System.out.println("RESPONSE: " + responseBody);
 
+            // #2 Check that the response body matches the ErrorMessageDto schema
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
+
             /*
             Specify the type of the 'message' field in ErrorMessageDTO:
             Type type = new TypeToken<ErrorMessageDTO<String>>() {}.getType();
@@ -232,23 +226,22 @@ public class RegistrationTests {
             //Specify the generic type when declaring the ErrorMessageDTO variable
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO =
                     GSON.fromJson(stringResBody, type);
-            // #2 Check that the "error" field equals "Bad Request"
+            // #3 Check that the "error" field equals "Bad Request"
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            // #3 Check that the "password" field is null
+            // #4 Check that the "password" field is null
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
             String password = messageFieldDTO.getPassword();
             Assert.assertNull(password, "The '" + ApiConstants.PASSWORD_FIELD_NAME + "' field should be null.");
-            // #4 Check that the "username" field equals the expected error message.
+            // #5 Check that the "username" field equals the expected error message.
             String username = messageFieldDTO.getUsername();
             Assert.assertTrue(ApiConstants.USERNAME_ERROR_TEXT_RU.equals(username)
                             || ApiConstants.USERNAME_ERROR_TEXT_EN.equals(username),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
-            // #5 Check that the response body matches the ErrorMessageDto schema
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
+
         }
 
     }
@@ -258,10 +251,10 @@ public class RegistrationTests {
      * returns the error "Bad Request" when registering a new user with a valid unique email and an invalid password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "password" field in the "message" object equals the expected error message. (#3)
-     * - The "username" field in the "message" object is null (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "password" field in the "message" object equals the expected error message. (#4)
+     * - The "username" field in the "message" object is null (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -282,25 +275,26 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+
+            // #2
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             //System.out.println(errorMessageDTO.toString());
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            // #3
+            // #4
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
             Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
-            // #4
+            // #5
             Assert.assertNull(messageFieldDTO.getUsername(),
                     "The '" + ApiConstants.USERNAME_FIELD_NAME + "' field should be null.");
-            // #5
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
         }
     }
 
@@ -310,11 +304,10 @@ public class RegistrationTests {
      * returns the error "Bad Request" when registering a new user with an invalid email and an invalid password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "password" field in the "message" object equals the expected error message. (#3)
-     * - The "username" field in the "message" object equals the expected error message (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
-     *
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "password" field in the "message" object equals the expected error message. (#4)
+     * - The "username" field in the "message" object equals the expected error message (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -335,26 +328,28 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+
+            // #2
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            // #3
+            // #4
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
             Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
-            // #4
+            // #5
             String usernameField = messageFieldDTO.getUsername();
             Assert.assertTrue(usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_RU)
                             || usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_EN),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
-            // #5
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
+
         }
     }
 
@@ -363,10 +358,10 @@ public class RegistrationTests {
      * returns the error "Bad Request" when registering a new user with an empty or blank email and a valid password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "password" field in the "message" object is null. (#3)
-     * - The "username" field in the "message" object equals the expected error message (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "password" field in the "message" object is null. (#4)
+     * - The "username" field in the "message" object equals the expected error message (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -386,27 +381,27 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+
+            // #2
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            // #3
+            // #4
             Assert.assertNull(messageFieldDTO.getPassword(),
                     "The '" + ApiConstants.PASSWORD_FIELD_NAME + "' field should be null.");
-            // #4
+            // #5
             String usernameField = messageFieldDTO.getUsername();
             Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(usernameField)
                             || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(usernameField),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
-            // #5
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-
         }
     }
 
@@ -415,10 +410,10 @@ public class RegistrationTests {
      * returns the error "Bad Request" when registering a new user with a valid email and an empty or blank password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "username" field in the "message" object is null. (#3)
-     * - The "password" field in the "message" object equals the expected error message (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "username" field in the "message" object is null. (#4)
+     * - The "password" field in the "message" object equals the expected error message (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -437,38 +432,38 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+            // #2
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
             }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            // #3
+            // #4
             Assert.assertNull(messageFieldDTO.getUsername(),
                     "The '" + ApiConstants.USERNAME_FIELD_NAME + "' field should be null.");
-            // #4
+            // #5
             String passwordField = messageFieldDTO.getPassword();
             Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(passwordField)
                             || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(passwordField),
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
-            // #5
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-
         }
     }
+
     /**
      * The negative test "shouldReturnBadRequestWhenRegisteringWithBlankEmailAndPassword" checks that the Phonebook API
      * returns the error "Bad Request" when registering a new user with an empty or blank email and an empty or blank password.
      * Expected results:
      * - Status code: 400. (#1)
-     * - The "error" field equals "Bad Request". (#2)
-     * - The "username" field in the "message" object equals the expected error message (#3)
-     * - The "password" field in the "message" object equals the expected error message (#4)
-     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#5)
+     * - Response body matches the ErrorMessageDto (Message - Object) schema. (#2)
+     * - The "error" field equals "Bad Request". (#3)
+     * - The "username" field in the "message" object equals the expected error message (#4)
+     * - The "password" field in the "message" object equals the expected error message (#5)
      * <p>
      * Note:
      * The exact validation message is not defined by the API contract.
@@ -480,35 +475,36 @@ public class RegistrationTests {
         AuthReqBodyDTO reqBodyDTO = AuthReqBodyDTO.builder().password("").username("").build();
         RequestBody requestBody = RequestBody.create(GSON.toJson(reqBodyDTO), JSON);
         Request request = new Request.Builder().url(REG_URL).post(requestBody).build();
-        try (Response response = CLIENT.newCall(request).execute()){
+        try (Response response = CLIENT.newCall(request).execute()) {
             // #1
             Assert.assertEquals(response.code(), 400, "Unexpected status code.");
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
 
             String stringResBody = responseBody.string();
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>(){}.getType();
+            // #2
+            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
+            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            }.getType();
             ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
 
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
 
             MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
             Assert.assertNotNull(messageFieldDTO, "The message object should not be null");
 
-            // #3
+            // #4
             String usernameField = messageFieldDTO.getUsername();
             Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(usernameField)
                             || ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(usernameField),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
-            // #4
+            // #5
             String passwordField = messageFieldDTO.getPassword();
             Assert.assertTrue(ApiConstants.BLANK_FIELD_ERROR_TEXT_EN.equals(passwordField)
-                    || ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(passwordField),
+                            || ApiConstants.BLANK_FIELD_ERROR_TEXT_RU.equals(passwordField),
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
-            // #5
-            SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
         }
     }
 
@@ -518,9 +514,9 @@ public class RegistrationTests {
      * <p>
      * Expected results:
      * - Status code: 409. (#1)
-     * - The "error" field equals "Conflict". (#2)
-     * - The "message" field equals "User already exists". (#3)
-     * - Response body matches the ErrorMessageDto (Message - String) schema. (#4)
+     * - Response body matches the ErrorMessageDto (Message - String) schema. (#2)
+     * - The "error" field equals "Conflict". (#3)
+     * - The "message" field equals "User already exists". (#4)
      * <p>
      * Note:
      * According to the API schema, the "message" field is defined as an object.
@@ -540,19 +536,18 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+            // #2
+            SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<String>>() {
             }.getType();
             ErrorMessageDTO<String> errorMessageDTO = GSON.fromJson(stringResBody, type);
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_409,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             String messageField = errorMessageDTO.getMessage();
-            // #3
+            // #4
             Assert.assertTrue(ApiConstants.CONFLICT_ERROR_TEXT.equals(messageField),
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
-            // #4
-            SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
-
         }
     }
 
@@ -562,9 +557,9 @@ public class RegistrationTests {
      * <p>
      * Expected results:
      * - Status code: 409. (#1)
-     * - The "error" field equals "Conflict". (#2)
-     * - The "message" field equals "User already exists". (#3)
-     * - Response body matches the ErrorMessageDto (Message - String) schema. (#4)
+     * - Response body matches the ErrorMessageDto (Message - String) schema. (#2)
+     * - The "error" field equals "Conflict". (#3)
+     * - The "message" field equals "User already exists". (#4)
      * <p>
      * Note:
      * According to the API schema, the "message" field is defined as an object.
@@ -583,23 +578,20 @@ public class RegistrationTests {
             ResponseBody responseBody = response.body();
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
+            // #2
+            SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
             Type type = new TypeToken<ErrorMessageDTO<String>>() {
             }.getType();
             ErrorMessageDTO<String> errorMessageDTO = GSON.fromJson(stringResBody, type);
-            // #2
+            // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_409,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             String messageField = errorMessageDTO.getMessage();
-            // #3
+            // #4
             Assert.assertTrue(ApiConstants.CONFLICT_ERROR_TEXT.equals(messageField),
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
-            // #4
-            SchemaValidator.checkErrorMessageDtoStringMessageSchema(stringResBody);
         }
     }
-
-
-
 
 
 }
