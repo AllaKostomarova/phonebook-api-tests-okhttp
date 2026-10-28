@@ -3,10 +3,10 @@ package authController;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import data.ApiConstants;
+import dto.AuthMessageObjectDTO;
 import dto.AuthReqBodyDTO;
 import dto.AuthResponseDTO;
 import dto.ErrorMessageDTO;
-import dto.MessageFieldDTO;
 import helpers.SchemaValidator;
 import okhttp3.*;
 import org.testng.Assert;
@@ -219,18 +219,18 @@ public class RegistrationTests {
             /*
             Specify the type of the 'message' field in ErrorMessageDTO:
             Type type = new TypeToken<ErrorMessageDTO<String>>() {}.getType();
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>(){}.getType();
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>(){}.getType();
              */
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
             //Specify the generic type when declaring the ErrorMessageDTO variable
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO =
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO =
                     GSON.fromJson(stringResBody, type);
             // #3 Check that the "error" field equals "Bad Request"
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4 Check that the "password" field is null
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
@@ -238,8 +238,8 @@ public class RegistrationTests {
             Assert.assertNull(password, "The '" + ApiConstants.PASSWORD_FIELD_NAME + "' field should be null.");
             // #5 Check that the "username" field equals the expected error message.
             String username = messageFieldDTO.getUsername();
-            Assert.assertTrue(ApiConstants.USERNAME_ERROR_TEXT_RU.equals(username)
-                            || ApiConstants.USERNAME_ERROR_TEXT_EN.equals(username),
+            Assert.assertTrue(ApiConstants.INVALID_EMAIL_ERROR_TEXT_RU.equals(username)
+                            || ApiConstants.INVALID_EMAIL_ERROR_TEXT_EN.equals(username),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
 
         }
@@ -278,19 +278,19 @@ public class RegistrationTests {
 
             // #2
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             //System.out.println(errorMessageDTO.toString());
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
+            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.INVALID_PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
             // #5
             Assert.assertNull(messageFieldDTO.getUsername(),
@@ -331,23 +331,23 @@ public class RegistrationTests {
 
             // #2
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
-            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.PASSWORD_ERROR_TEXT,
+            Assert.assertEquals(messageFieldDTO.getPassword(), ApiConstants.INVALID_PASSWORD_ERROR_TEXT,
                     "The text in the '" + ApiConstants.PASSWORD_FIELD_NAME + "' field is incorrect.");
             // #5
             String usernameField = messageFieldDTO.getUsername();
-            Assert.assertTrue(usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_RU)
-                            || usernameField.equals(ApiConstants.USERNAME_ERROR_TEXT_EN),
+            Assert.assertTrue(usernameField.equals(ApiConstants.INVALID_EMAIL_ERROR_TEXT_RU)
+                            || usernameField.equals(ApiConstants.INVALID_EMAIL_ERROR_TEXT_EN),
                     "The text in the '" + ApiConstants.USERNAME_FIELD_NAME + "' field is incorrect.");
 
         }
@@ -384,13 +384,13 @@ public class RegistrationTests {
 
             // #2
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
@@ -434,13 +434,13 @@ public class RegistrationTests {
             String stringResBody = responseBody.string();
             // #2
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             // Check that the "message" object is not null
             Assert.assertNotNull(messageFieldDTO,
                     "The message object should not be null.");
@@ -484,15 +484,15 @@ public class RegistrationTests {
             String stringResBody = responseBody.string();
             // #2
             SchemaValidator.checkErrorMessageDtoObjectMessageSchema(stringResBody);
-            Type type = new TypeToken<ErrorMessageDTO<MessageFieldDTO>>() {
+            Type type = new TypeToken<ErrorMessageDTO<AuthMessageObjectDTO>>() {
             }.getType();
-            ErrorMessageDTO<MessageFieldDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
+            ErrorMessageDTO<AuthMessageObjectDTO> errorMessageDTO = GSON.fromJson(stringResBody, type);
 
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_400,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
 
-            MessageFieldDTO messageFieldDTO = errorMessageDTO.getMessage();
+            AuthMessageObjectDTO messageFieldDTO = errorMessageDTO.getMessage();
             Assert.assertNotNull(messageFieldDTO, "The message object should not be null");
 
             // #4

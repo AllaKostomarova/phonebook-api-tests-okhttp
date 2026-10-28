@@ -21,9 +21,9 @@ public class ApiConstants {
 
     // Tokens
     // For aa@aa.ru / Test123$
-    public static final String ACTIVE_BASE_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiYWFAYWEucnUiLCJpc3MiOiJSZWd1bGFpdCIsImV4cCI6MTc5MjA5OTY4MCwiaWF0IjoxNzkxNDk5NjgwfQ.ti5x3X8XxvkgImHfUm060h_W2vh1cGfWTvL3Z6Bd3IA";
+    public static final String ACTIVE_BASE_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiYWFAYWEucnUiLCJpc3MiOiJSZWd1bGFpdCIsImV4cCI6MTc5MzcyNDMxMywiaWF0IjoxNzkzMTI0MzEzfQ.fCULihbelF7mUKh5JcKn0DnoWvwLCB-D79ymJ08u-XE";
     // For dd@dd.ru / Password567!
-    public static final String ACTIVE_TOKEN_EMPTY_ARRAY = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZGRAZGQucnUiLCJpc3MiOiJSZWd1bGFpdCIsImV4cCI6MTc5MjEwMDMxMiwiaWF0IjoxNzkxNTAwMzEyfQ.zETL25cStPJInXFE8-5yMeA-TCo9JnXeh4QK695r1ww";
+    public static final String ACTIVE_TOKEN_EMPTY_ARRAY = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZGRAZGQucnUiLCJpc3MiOiJSZWd1bGFpdCIsImV4cCI6MTc5Mjg2NzE4MywiaWF0IjoxNzkyMjY3MTgzfQ.TJpLDmaEub74py-HjUd05UzbFvbVYioK_FMNCxuPpIQ";
     public static final String INVALID_TOKEN = "eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwic3ViIjoiZGRAZGQucnUiLCJpc3MiOiJSZWd1bGFpdCIsImV4cCI6MTc5MjEwMDMxMiwiaWF0IjoxNzkxNTAwMzEyfQ.zETL25cStPJInXFE8-5yMeA-TCo9JnXeh4QK695r1ww";
 
     // Headers name
@@ -55,16 +55,26 @@ public class ApiConstants {
 
 
     // Expected error messages
-    public static final String USERNAME_ERROR_TEXT_RU = "должно иметь формат адреса электронной почты";
-    public static final String USERNAME_ERROR_TEXT_EN = "must be a well-formed email address";
-    public static final String PASSWORD_ERROR_TEXT = " At least 8 characters; Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number; Can contain special characters [@$#^&*!]";
+    // Authorization assertion message
+    public static final String INVALID_PASSWORD_ERROR_TEXT = " At least 8 characters; Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number; Can contain special characters [@$#^&*!]";
+    public static final String CONFLICT_ERROR_TEXT = "User already exists";
+    public static final String INVALID_AUTH_ERROR_TEXT = "Login or Password incorrect";
+    // Contact assertion message
+    public static final String INVALID_PHONE_ERROR_TEXT = "Phone number must contain only digits! And length min 10, max 15!";
+    // Common assertion messages
+    public static final String INVALID_EMAIL_ERROR_TEXT_RU = "должно иметь формат адреса электронной почты";
+    public static final String INVALID_EMAIL_ERROR_TEXT_EN = "must be a well-formed email address";
     public static final String BLANK_FIELD_ERROR_TEXT_RU = "не должно быть пустым";
     public static final String BLANK_FIELD_ERROR_TEXT_EN = "must not be blank";
-    public static final String CONFLICT_ERROR_TEXT = "User already exists";
-    public static final String AUTH_ERROR_TEXT = "Login or Password incorrect";
     public static final String ERROR_400 = "Bad Request";
     public static final String ERROR_409 = "Conflict";
     public static final String ERROR_401 = "Unauthorized";
+
+    // Expected success message
+    public static final String CONTACT_CREATED_MESSAGE = "Contact was added!";
+    public static final String CONTACT_ID_PREFIX = "ID: ";
+    public static final String CONTACT_UPDATED_MESSAGE = "";
+    public static final String CONTACT_DELETED_MESSAGE = "";
 
 
 }

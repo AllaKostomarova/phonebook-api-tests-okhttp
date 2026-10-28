@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class MessageFieldDTO {
+public class AuthMessageObjectDTO {
     private String password;
     private String username;
 }

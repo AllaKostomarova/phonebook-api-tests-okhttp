@@ -126,7 +126,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
     }
@@ -166,7 +166,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
     }
@@ -207,7 +207,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
 
         }
@@ -246,7 +246,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
     }
@@ -285,7 +285,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
 
@@ -324,7 +324,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
 
@@ -365,7 +365,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
 
@@ -406,7 +406,7 @@ public class LoginTests {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
             // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
+            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.INVALID_AUTH_ERROR_TEXT,
                     "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
 
         }

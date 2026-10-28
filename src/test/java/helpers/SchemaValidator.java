@@ -5,17 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import data.ApiConstants;
-import dto.AuthReqBodyDTO;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.testng.Assert;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 
 public class SchemaValidator {
     /**
@@ -236,22 +229,25 @@ public class SchemaValidator {
     }
 
     /**
-     * Checks that the response body
-     * matches the ContactsDto schema defined in the API documentation
-     * and uses the helper method checkContactJson() to validate each contact in the 'contacts' array.
+     * Checks that the response body matches the top-level
+     * ContactsDto structure defined in the API documentation.
      * <p>
      * Expected results:
      * - The response contains exactly one field (#1)
      * - The field name is 'contacts' (#2)
-     * - The 'contacts' field is an array of ContactDto objects (#3)
+     * - The 'contacts' field is an JSON array (#3)
      * <p>
+     *  IMPORTANT:
+     *  This method does not validate the structure of individual
+     *  contacts or whether the array is empty.
+     *
      * ContactsDto{
-     * contacts	[ContactDto{...}]
+     * contacts	[]
      * }
      * *
      * @param responseBody the response body as a Java String
      */
-    public static void checkContactsDtoSchema(String responseBody){
+    public static void checkContactsResponseStructure(String responseBody){
         Assert.assertNotNull(responseBody,
                 "Response body should not be null.");
         JsonElement jsonElement = JsonParser.parseString(responseBody);
@@ -269,13 +265,51 @@ public class SchemaValidator {
         Assert.assertTrue(contactsField.isJsonArray(),
                 "The '" + ApiConstants.CONTACTS_FIELD_NAME + "' field should be a JSON array.");
 
-        JsonArray contactsArray = contactsField.getAsJsonArray();
+    }
+
+    /**
+     * Checks that the response body matches the complete
+     * ContactsDto structure defined in the API documentation.
+     *
+     * First, validates the top-level response structure using
+     * checkContactsResponseStructure().
+     * Then, validates each contact using checkContactJson().
+     *
+     * <p>
+     * Expected results:
+     * - The response matches the top-level ContactsDto structure.
+     * - Each element in the 'contacts' array is a JSON object.
+     * - Each contact object matches the ContactDto schema.
+     *
+     * IMPORTANT:
+     * This method validates the structure of each contact
+     * but does not require the contacts array to be non-empty.
+     *
+     * <p>
+     * ContactsDto {
+     *     contacts: [ContactDto {
+     *         id: string
+     *         name*: string
+     *         lastName*: string
+     *         email: string
+     *         phone: string
+     *         address*: string
+     *         description: string
+     *     }]
+     * }
+     *
+     * @param responseBody the response body as a Java String
+     */
+    public static void checkContactsResponseAndItemsStructure(String responseBody){
+        checkContactsResponseStructure(responseBody);
+
+        JsonObject jsonResBody = JsonParser.parseString(responseBody).getAsJsonObject();
+        JsonArray contactsArray = jsonResBody.getAsJsonArray(ApiConstants.CONTACTS_FIELD_NAME);
         for (JsonElement contact : contactsArray){
             Assert.assertTrue(contact.isJsonObject(),
                     "Each contact should be a JSON object.");
-           checkContactJson(contact.getAsJsonObject());
+            checkContactJson(contact.getAsJsonObject());
         }
-
     }
 
     /**
@@ -349,6 +383,68 @@ public class SchemaValidator {
             Assert.assertTrue(jsonResBody.has(field),
                     "The ContactDto object should contain the '" + field + "' field.");
             JsonElement fieldContent = jsonResBody.get(field);
+            Assert.assertTrue(fieldContent.isJsonPrimitive(),
+                    "The '" + field + "' field should be a JSON primitive.");
+            Assert.assertTrue(fieldContent.getAsJsonPrimitive().isString(),
+                    "The '" + field + "' field should be a string.");
+        }
+    }
+
+    public static void checkSuccessMessageDtoSchema(String responseBody){
+        Assert.assertNotNull(responseBody, " The response body should not be null. ");
+        JsonElement jsonElement = JsonParser.parseString(responseBody);
+        Assert.assertTrue(jsonElement.isJsonObject(),
+                "The ResponseMessageDto object should be a Json object.");
+        JsonObject jsonResBody = jsonElement.getAsJsonObject();
+        Assert.assertEquals(jsonResBody.size(), 1,
+                "The ResponseMessageDto object should contain exactly one field.");
+        Assert.assertTrue(jsonResBody.has(ApiConstants.MESSAGE_FIELD_NAME),
+                "The ResponseMessageDTO should contain the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field.");
+        JsonElement messageField = jsonResBody.get(ApiConstants.MESSAGE_FIELD_NAME);
+        Assert.assertTrue(messageField.isJsonPrimitive(),
+                "The '" + ApiConstants.MESSAGE_FIELD_NAME + "' field should be a Json primitive.");
+        Assert.assertTrue(messageField.getAsJsonPrimitive().isString(),
+                "The '" + ApiConstants.MESSAGE_FIELD_NAME + "' field should be a string.");
+    }
+
+    /**
+     * Validates the structure of a JSON message object against an array of expected field names.
+     *
+     * Expected results:
+     * - The message object contains exactly the expected fields (no missing or extra fields).
+     * - Each field value is a JSON string.
+     *
+     * IMPORTANT:
+     * The expected fields array must be defined separately for each test scenario.
+     * There is no universal set of expected fields; it depends on the validation
+     * errors expected in the specific test case.
+     *
+     * @param messageFieldsArray an array of expected field names for the current test scenario
+     * @param responseBody the response body as a Java String
+     */
+
+    public static void checkMessageObjectJson(String[] messageFieldsArray, String responseBody){
+        Assert.assertNotNull(messageFieldsArray,
+                "The message fields array should not be null.");
+        Assert.assertNotNull(responseBody,
+                "The response body should not be null.");
+        JsonElement jsonElement = JsonParser.parseString(responseBody);
+        Assert.assertTrue(jsonElement.isJsonObject(), "The response body should be a JSON object.");
+        JsonObject jsonResBody = jsonElement.getAsJsonObject();
+        Assert.assertTrue(jsonResBody.has(ApiConstants.MESSAGE_FIELD_NAME),
+                "The ErrorMessageDto should contain the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field.");
+        JsonElement messageElement = jsonResBody.get(ApiConstants.MESSAGE_FIELD_NAME);
+        Assert.assertTrue(messageElement.isJsonObject(),
+                "The '" + ApiConstants.MESSAGE_FIELD_NAME + "' field should be a JSON object.");
+        JsonObject messageJsonObject = messageElement.getAsJsonObject();
+        // Check the message object size
+        Assert.assertEquals(messageJsonObject.size(), messageFieldsArray.length,
+                "The message object should contain " + messageFieldsArray.length + " fields.");
+        // Check field names and value types
+        for (String field : messageFieldsArray){
+            Assert.assertTrue(messageJsonObject.has(field),
+                    "The message object should contain the '" + field + "' field.");
+            JsonElement fieldContent = messageJsonObject.get(field);
             Assert.assertTrue(fieldContent.isJsonPrimitive(),
                     "The '" + field + "' field should be a JSON primitive.");
             Assert.assertTrue(fieldContent.getAsJsonPrimitive().isString(),

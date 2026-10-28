@@ -15,5 +15,5 @@ import java.util.ArrayList;
 @Data
 @Builder
 public class AllContactsDTO {
-    private ArrayList<ContactDTO> arrContacts;
+    private ArrayList<ContactDTO> contacts;
 }

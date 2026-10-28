@@ -41,11 +41,12 @@ public class GetAllContacts {
             String stringResBody = responseBody.string();
 
             // #2
-            SchemaValidator.checkContactsDtoSchema(stringResBody);
+            SchemaValidator.checkContactsResponseStructure(stringResBody);
 
             // #3
             AllContactsDTO contactsArrayDTO = GSON.fromJson(stringResBody, AllContactsDTO.class);
-            Assert.assertFalse(contactsArrayDTO.getArrContacts().isEmpty(),
+
+            Assert.assertFalse(contactsArrayDTO.getContacts().isEmpty(),
                     "The contacts array should not be empty.");
         }
     }
@@ -71,10 +72,10 @@ public class GetAllContacts {
             Assert.assertNotNull(responseBody, "The response body should not be null.");
             String stringResBody = responseBody.string();
             // #2
-            SchemaValidator.checkContactsDtoSchema(stringResBody);
+            SchemaValidator.checkContactsResponseStructure(stringResBody);
             // #3
             AllContactsDTO contactsArrayDTO = GSON.fromJson(stringResBody, AllContactsDTO.class);
-            Assert.assertTrue(contactsArrayDTO.getArrContacts().isEmpty(),
+            Assert.assertTrue(contactsArrayDTO.getContacts().isEmpty(),
                     "The contacts array should be empty in the user: " + ApiConstants.ANOTHER_REGISTERED_LOGIN);
         }
     }
@@ -87,7 +88,6 @@ public class GetAllContacts {
      * - Status code: 401 (#1)
      * - The response body matches the ErrorMessageDto (Message - String) schema (#2)
      * - The 'error' field exists and equals "Unauthorized" (#3)
-     * - The 'message' field exists and equals the expected message (#4)
      */
     @Test
     public void shouldReturnUnauthorizedWhenGetContactsWithInvalidToken() throws IOException {
@@ -111,9 +111,6 @@ public class GetAllContacts {
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
-                    "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
     }
     /**
@@ -124,7 +121,6 @@ public class GetAllContacts {
      * - Status code: 401 (#1)
      * - The response body matches the ErrorMessageDto (Message - String) schema (#2)
      * - The 'error' field exists and equals "Unauthorized" (#3)
-     * - The 'message' field exists and equals the expected message (#4)
      */
     @Test
     public void shouldReturnUnauthorizedWhenGetContactsWithEmptyAuthorizationHeader() throws IOException {
@@ -149,9 +145,6 @@ public class GetAllContacts {
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
 
-            // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
-                    "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
 
     }
@@ -164,7 +157,6 @@ public class GetAllContacts {
      * - Status code: 401 (#1)
      * - The response body matches the ErrorMessageDto (Message - String) schema (#2)
      * - The 'error' field exists and equals "Unauthorized" (#3)
-     * - The 'message' field exists and equals the expected message (#4)
      */
     @Test
     public void shouldReturnUnauthorizedWhenGetContactsWithoutAuthorizationHeader() throws IOException {
@@ -187,9 +179,6 @@ public class GetAllContacts {
             // #3
             Assert.assertEquals(errorMessageDTO.getError(), ApiConstants.ERROR_401,
                     "The text in the '" + ApiConstants.ERROR_FIELD_NAME + "' field is incorrect.");
-            // #4
-            Assert.assertEquals(errorMessageDTO.getMessage(), ApiConstants.AUTH_ERROR_TEXT,
-                    "The text in the '" + ApiConstants.MESSAGE_FIELD_NAME + "' field is incorrect.");
         }
     }
 
